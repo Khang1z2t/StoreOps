@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>StoreOps — Project Plan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --surface2: #1a1a24;
+            --border: #ffffff10;
+            --border2: #ffffff18;
+            --accent: #ff6b35;
+            --accent2: #7c3aed;
+            --accent3: #06b6d4;
+            --text: #f0f0f5;
+            --text2: #9090a8;
+            --text3: #5a5a72;
+            --green: #10b981;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Instrument Sans', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── noise overlay ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 32px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 72px 0 56px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 56px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ff6b3515;
+            border: 1px solid #ff6b3530;
+            border-radius: 999px;
+            padding: 4px 14px 4px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            margin-bottom: 28px;
+        }
+
+        .badge-dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(42px, 7vw, 72px);
+            font-weight: 800;
+            line-height: 1.0;
+            letter-spacing: -0.03em;
+            margin-bottom: 6px;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, var(--accent) 0%, #ff9a6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: var(--text2);
+            margin-top: 20px;
+            max-width: 540px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tech-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 28px;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .pill-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+
+        /* ── SECTION HEADER ── */
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text3);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── SCENARIO CARD ── */
+        .scenario {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 28px;
+            margin-bottom: 48px;
+            font-size: 15px;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+
+        .scenario strong { color: var(--text); }
+
+        /* ── ROLE GRID ── */
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .role-card {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .role-card:hover { border-color: var(--border2); }
+
+        .role-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+
+        .role-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .role-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .role-card li {
+            font-size: 13px;
+            color: var(--text2);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .role-card li::before {
+            content: '→';
+            color: var(--accent);
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ── MILESTONE ── */
+        .milestones {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .milestones::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 20px;
+            bottom: 20px;
+            width: 1px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+        }
+
+        .milestone {
+            display: flex;
+            gap: 24px;
+            padding: 0 0 32px;
+        }
+
+        .milestone:last-child { padding-bottom: 0; }
+
+        .m-number {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border2);
+            background: var(--surface);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .milestone:nth-child(1) .m-number { border-color: var(--accent); color: var(--accent); }
+        .milestone:nth-child(2) .m-number { border-color: var(--accent2); color: var(--accent2); }
+        .milestone:nth-child(3) .m-number { border-color: var(--accent3); color: var(--accent3); }
+        .milestone:nth-child(4) .m-number { border-color: var(--green); color: var(--green); }
+
+        .m-body {
+            flex: 1;
+            padding-top: 8px;
+        }
+
+        .m-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .m-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .m-week {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text3);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+
+        .m-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .m-task {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        .task-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 1px 7px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .tag-be { background: #7c3aed20; color: var(--accent2); border: 1px solid #7c3aed30; }
+        .tag-fe { background: #06b6d420; color: var(--accent3); border: 1px solid #06b6d430; }
+        .tag-db { background: #10b98120; color: var(--green); border: 1px solid #10b98130; }
+        .tag-ops { background: #ff6b3520; color: var(--accent); border: 1px solid #ff6b3530; }
+
+        /* ── ARCHITECTURE ── */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .arch-card {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .arch-card h4 {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .arch-item {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text3);
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .arch-item:last-child { border-bottom: none; }
+        .arch-item-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border2); flex-shrink: 0; }
+
+        /* ── GITHUB SECTION ── */
+        .github-card {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 28px;
+            margin-bottom: 48px;
+        }
+
+        .branch-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .branch-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .branch-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            min-width: 160px;
+            flex-shrink: 0;
+        }
+
+        .branch-desc {
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        .b-main { color: var(--green); }
+        .b-dev { color: var(--yellow); }
+        .b-feature { color: var(--accent3); }
+        .b-fix { color: var(--red); }
+
+        /* ── TECH TABLE ── */
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 48px;
+            font-size: 13px;
+        }
+
+        .tech-table th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text3);
+            text-align: left;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.08em;
+        }
+
+        .tech-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text2);
+            vertical-align: top;
+        }
+
+        .tech-table tr:last-child td { border-bottom: none; }
+
+        .tech-table tr:hover td { background: var(--surface2); }
+
+        .tech-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+            font-size: 12px;
+        }
+
+        /* ── EXTRA FEATURES ── */
+        .extras-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .extra-card {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            gap: 14px;
+        }
+
+        .extra-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .extra-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .extra-desc {
+            font-size: 12px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* ── API ENDPOINTS ── */
+        .endpoints {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 48px;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .method {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 48px;
+            text-align: center;
+        }
+
+        .get { background: #10b98120; color: var(--green); border: 1px solid #10b98140; }
+        .post { background: #06b6d420; color: var(--accent3); border: 1px solid #06b6d440; }
+        .put { background: #f59e0b20; color: var(--yellow); border: 1px solid #f59e0b40; }
+        .delete { background: #ef444420; color: var(--red); border: 1px solid #ef444440; }
+
+        .endpoint-path { color: var(--text); flex: 1; }
+        .endpoint-note { color: var(--text3); font-size: 11px; }
+
+        .role-badge {
+            font-size: 10px;
+            padding: 1px 7px;
+            border-radius: 4px;
+            background: var(--surface2);
+            color: var(--text3);
+            border: 1px solid var(--border);
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        .footer-logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .footer-logo span { color: var(--accent); }
+
+        /* section spacing */
+        .section { margin-bottom: 56px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="badge">
+            <span class="badge-dot"></span>
+            Interview Project — 7-Eleven Vietnam
+        </div>
+        <h1>Store<span>Ops</span></h1>
+        <p style="font-family:'Syne',sans-serif; font-size:18px; color:var(--text2); margin-top:10px; font-weight:600;">
+            Convenience Store Order Management System
+        </p>
+        <p class="hero-sub">
+            Hệ thống quản lý sản phẩm & đơn hàng nội bộ<br/>
+            dành cho chuỗi cửa hàng tiện lợi
+        </p>
+        <div class="tech-pills">
+            <div class="pill"><span class="pill-dot" style="background:#7c3aed"></span>Spring Boot 4.x</div>
+            <div class="pill"><span class="pill-dot" style="background:#06b6d4"></span>Next.js 14</div>
+            <div class="pill"><span class="pill-dot" style="background:#10b981"></span>PostgreSQL</div>
+            <div class="pill"><span class="pill-dot" style="background:#f59e0b"></span>Supabase</div>
+            <div class="pill"><span class="pill-dot" style="background:#ff6b35"></span>JWT Auth</div>
+            <div class="pill"><span class="pill-dot" style="background:#9090a8"></span>Docker</div>
+            <div class="pill"><span class="pill-dot" style="background:#fff"></span>Vercel</div>
+        </div>
+    </div>
+
+    <!-- SCENARIO -->
+    <div class="section">
+        <div class="section-label">01 — Scenario</div>
+        <div class="scenario">
+            <strong>Nhân viên cửa hàng (Staff)</strong> duyệt danh sách sản phẩm trong kho và tạo đơn nhập hàng gửi lên quản lý.
+            <strong>Admin (Store Manager)</strong> quản lý danh mục hàng hóa và duyệt / theo dõi các đơn nhập hàng.
+            Hệ thống phân quyền rõ ràng — mỗi role chỉ thấy và thực hiện được chức năng của mình.
+        </div>
+
+        <div class="role-grid">
+            <div class="role-card">
+                <div class="role-icon" style="background:#7c3aed15">🛡️</div>
+                <h3 style="color:var(--accent2)">Admin — Store Manager</h3>
+                <ul>
+                    <li>Quản lý sản phẩm: thêm, sửa, xóa</li>
+                    <li>Xem danh sách & chi tiết sản phẩm</li>
+                    <li>Xem toàn bộ đơn hàng</li>
+                    <li>Cập nhật trạng thái đơn hàng</li>
+                    <li>Dashboard thống kê tổng quan</li>
+                </ul>
+            </div>
+            <div class="role-card">
+                <div class="role-icon" style="background:#06b6d415">👤</div>
+                <h3 style="color:var(--accent3)">Staff — Store Employee</h3>
+                <ul>
+                    <li>Xem danh sách sản phẩm</li>
+                    <li>Tìm kiếm & lọc theo category</li>
+                    <li>Thêm sản phẩm vào giỏ hàng</li>
+                    <li>Tạo & gửi đơn nhập hàng</li>
+                    <li>Xem lịch sử đơn của mình</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MILESTONES -->
+    <div class="section">
+        <div class="section-label">02 — Milestones</div>
+        <div class="milestones">
+
+            <div class="milestone">
+                <div class="m-number">M1</div>
+                <div class="m-body">
+                    <div class="m-header">
+                        <span class="m-title">Foundation & Auth</span>
+                        <span class="m-week">Tuần 1</span>
+                    </div>
+                    <div class="m-tasks">
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>Setup Spring Boot, cấu hình Security + JWT</div>
+                        <div class="m-task"><span class="task-tag tag-db">DB</span>Tạo schema storeops trên Supabase, Flyway migrations</div>
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>AuthController: login, refresh token, logout</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Setup Next.js 14, Tailwind, shadcn/ui, TanStack Query</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Trang login + Zustand auth store + route guard</div>
+                        <div class="m-task"><span class="task-tag tag-ops">OPS</span>Docker Compose (BE + PostgreSQL local), GitHub repo</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="milestone">
+                <div class="m-number">M2</div>
+                <div class="m-body">
+                    <div class="m-header">
+                        <span class="m-title">Product Module</span>
+                        <span class="m-week">Tuần 2</span>
+                    </div>
+                    <div class="m-tasks">
+                        <div class="m-task"><span class="task-tag tag-db">DB</span>Migration: bảng products, categories</div>
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>ProductController: CRUD + phân quyền theo role</div>
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>Validation, GlobalExceptionHandler, ApiResponse wrapper</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Admin: product table, modal thêm/sửa, confirm xóa</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Staff: product grid, search, filter theo category</div>
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>Swagger UI + Springdoc OpenAPI config</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="milestone">
+                <div class="m-number">M3</div>
+                <div class="m-body">
+                    <div class="m-header">
+                        <span class="m-title">Order Module</span>
+                        <span class="m-week">Tuần 3</span>
+                    </div>
+                    <div class="m-tasks">
+                        <div class="m-task"><span class="task-tag tag-db">DB</span>Migration: bảng orders, order_items</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Staff: Cart drawer, chọn sản phẩm, submit order</div>
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>OrderController: tạo đơn, validate stock, tính total</div>
+                        <div class="m-task"><span class="task-tag tag-be">BE</span>Order status flow: PENDING → APPROVED → DELIVERED</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Admin: order list, filter theo status, xem chi tiết</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>OrderStatusBadge + update status action</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="milestone">
+                <div class="m-number">M4</div>
+                <div class="m-body">
+                    <div class="m-header">
+                        <span class="m-title">Polish & Deploy</span>
+                        <span class="m-week">Tuần 4</span>
+                    </div>
+                    <div class="m-tasks">
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Pagination, search, sort cho product & order list</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Admin dashboard: cards thống kê, low stock warning</div>
+                        <div class="m-task"><span class="task-tag tag-fe">FE</span>Loading state, empty state, error handling toàn bộ FE</div>
+                        <div class="m-task"><span class="task-tag tag-ops">OPS</span>Deploy BE lên Railway/Render, FE lên Vercel</div>
+                        <div class="m-task"><span class="task-tag tag-ops">OPS</span>GitHub Actions CI: build + test khi push/PR</div>
+                        <div class="m-task"><span class="task-tag tag-ops">OPS</span>README: setup guide, screenshots, Postman collection</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- API ENDPOINTS -->
+    <div class="section">
+        <div class="section-label">03 — API Endpoints</div>
+        <div class="endpoints">
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/api/auth/login</span>
+                <span class="role-badge">PUBLIC</span>
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/api/auth/refresh</span>
+                <span class="role-badge">PUBLIC</span>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/api/products</span>
+                <span class="role-badge">ADMIN | STAFF</span>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/api/products/{id}</span>
+                <span class="role-badge">ADMIN | STAFF</span>
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/api/products</span>
+                <span class="role-badge">ADMIN</span>
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="endpoint-path">/api/products/{id}</span>
+                <span class="role-badge">ADMIN</span>
+            </div>
+            <div class="endpoint">
+                <span class="method delete">DEL</span>
+                <span class="endpoint-path">/api/products/{id}</span>
+                <span class="role-badge">ADMIN</span>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-path">/api/orders</span>
+                <span class="role-badge">ADMIN</span>
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-path">/api/orders</span>
+                <span class="role-badge">ADMIN | STAFF</span>
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="endpoint-path">/api/orders/{id}/status</span>
+                <span class="role-badge">ADMIN</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div class="section">
+        <div class="section-label">04 — Architecture</div>
+        <div class="arch-grid">
+            <div class="arch-card">
+                <h4 style="color:var(--accent2)">Backend — BE</h4>
+                <div class="arch-item"><span class="arch-item-dot"></span>Spring Boot 4.x</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Spring Security 6</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>JJWT 0.12.x</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Spring Data JPA</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Flyway Migration</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Springdoc OpenAPI</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Lombok</div>
+            </div>
+            <div class="arch-card">
+                <h4 style="color:var(--accent3)">Frontend — FE</h4>
+                <div class="arch-item"><span class="arch-item-dot"></span>Next.js 14 App Router</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>TypeScript</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>TanStack Query</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Zustand</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>shadcn/ui + Radix</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>React Hook Form + Zod</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Axios</div>
+            </div>
+            <div class="arch-card">
+                <h4 style="color:var(--green)">Infra & DevOps</h4>
+                <div class="arch-item"><span class="arch-item-dot"></span>PostgreSQL (Supabase)</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Docker Compose (local)</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>GitHub Actions CI</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Vercel (FE deploy)</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Railway / Render (BE)</div>
+                <div class="arch-item"><span class="arch-item-dot"></span>Schema: storeops</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GITHUB -->
+    <div class="section">
+        <div class="section-label">05 — GitHub Strategy</div>
+        <div class="github-card">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text2); margin-bottom:4px;">
+                📁 StoreOps/  <span style="color:var(--text3)">← monorepo</span>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text3); margin-bottom:20px; padding-left:16px;">
+                ├── backend/ &nbsp;&nbsp;&nbsp;├── frontend/ &nbsp;&nbsp;&nbsp;├── docker-compose.yml &nbsp;&nbsp;&nbsp;└── README.md
+            </div>
+            <div class="branch-list">
+                <div class="branch-item">
+                    <span class="branch-name b-main">main</span>
+                    <span class="branch-desc">Production-ready, protected — chỉ merge qua PR đã review</span>
+                </div>
+                <div class="branch-item">
+                    <span class="branch-name b-dev">develop</span>
+                    <span class="branch-desc">Integration branch — merge tất cả feature vào đây trước khi lên main</span>
+                </div>
+                <div class="branch-item">
+                    <span class="branch-name b-feature">feature/auth-jwt</span>
+                    <span class="branch-desc">Mỗi tính năng 1 nhánh, ví dụ: feature/product-crud, feature/order-create</span>
+                </div>
+                <div class="branch-item">
+                    <span class="branch-name b-fix">fix/order-status</span>
+                    <span class="branch-desc">Hotfix branches, merge thẳng vào develop sau khi fix</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXTRAS -->
+    <div class="section">
+        <div class="section-label">06 — Bonus Features</div>
+        <div class="extras-grid">
+            <div class="extra-card">
+                <span class="extra-icon">📊</span>
+                <div>
+                    <div class="extra-title">Admin Dashboard</div>
+                    <div class="extra-desc">Cards thống kê: tổng đơn hôm nay, sản phẩm sắp hết hàng, doanh số tuần. Dùng Recharts.</div>
+                </div>
+            </div>
+            <div class="extra-card">
+                <span class="extra-icon">📦</span>
+                <div>
+                    <div class="extra-title">Stock Management</div>
+                    <div class="extra-desc">Trừ stock khi order approved. Badge "Low Stock" khi quantity dưới threshold.</div>
+                </div>
+            </div>
+            <div class="extra-card">
+                <span class="extra-icon">🔄</span>
+                <div>
+                    <div class="extra-title">Order Status Flow</div>
+                    <div class="extra-desc">PENDING → APPROVED → DELIVERED. Admin update status, Staff thấy badge màu realtime.</div>
+                </div>
+            </div>
+            <div class="extra-card">
+                <span class="extra-icon">🗂️</span>
+                <div>
+                    <div class="extra-title">Product Categories</div>
+                    <div class="extra-desc">Beverages, Snacks, Frozen, Personal Care — đúng danh mục 7-Eleven thực tế.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-logo">Store<span>Ops</span></div>
+        <div>Spring Boot 3 + Next.js 14 + PostgreSQL</div>
+        <div>7-Eleven Interview Project · 2025</div>
+    </div>
+
+</div>
+</body>
+</html>
