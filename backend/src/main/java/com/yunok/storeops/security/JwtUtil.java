@@ -97,6 +97,23 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public java.util.UUID extractUserIdFromRefreshToken(String token) {
+        try {
+            // Validate token signature & expiration
+            if (isTokenExpired(token)) {
+                throw new IllegalArgumentException("Refresh token expired");
+            }
+            // Check token type
+            if (!isRefreshToken(token)) {
+                throw new IllegalArgumentException("Invalid token type: expected refresh token");
+            }
+            String userId = extractUserId(token);
+            return java.util.UUID.fromString(userId);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid refresh token: " + e.getMessage());
+        }
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         return claimsResolver.apply(extractAllClaims(token));
     }

@@ -35,4 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     // Low stock warning
     @Query("SELECT p FROM Product p WHERE p.active = true AND p.quantity <= :threshold")
     Page<Product> findLowStock(@Param("threshold") int threshold, Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.active = true AND p.quantity <= :threshold")
+    long countLowStock(@Param("threshold") int threshold);
 }

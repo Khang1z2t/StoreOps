@@ -26,4 +26,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     // Dashboard: đếm đơn của 1 user
     long countByUserId(UUID userId);
+
+    // Dashboard: Tổng doanh thu (chỉ tính đơn DELIVERED)
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Order o WHERE o.status = 'DELIVERED'")
+    java.math.BigDecimal sumRevenue();
 }

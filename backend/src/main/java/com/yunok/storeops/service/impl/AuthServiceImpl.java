@@ -62,6 +62,19 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public AuthResponse refresh(String refreshToken) {
+        // Validate refresh token and extract user ID
+        UUID userId = jwtUtil.extractUserIdFromRefreshToken(refreshToken);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Generate new access token
+        String newAccessToken = jwtUtil.generateToken(user);
+
+        return new AuthResponse(newAccessToken, refreshToken);
+    }
+
+    @Override
     public void logout() {
         // Add token to blacklist or invalidate it in the database/cache
     }

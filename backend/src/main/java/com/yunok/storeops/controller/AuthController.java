@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,6 +33,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
         return ResponseEntity.status(201).body(ApiResponse.success("Register successful"));
+    }
+
+    @PostMapping(ApiPaths.AUTH_REFRESH)
+    public ResponseEntity<ApiResponse<AuthResponse>> refresh(@RequestHeader("Authorization") String authHeader) {
+        // Extract refresh token from "Bearer <token>" format
+        String refreshToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        AuthResponse authResponse = authService.refresh(refreshToken);
+        return ResponseEntity.ok(ApiResponse.success("Token refreshed", authResponse));
     }
 
     @PostMapping(ApiPaths.AUTH_LOGOUT)

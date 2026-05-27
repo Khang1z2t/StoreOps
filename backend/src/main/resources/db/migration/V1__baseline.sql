@@ -1,0 +1,3 @@
+-- Baseline marker for existing storeops database.
+-- Existing environments will be baselined via flyway.baseline-on-migrate=true.
+-- Add new schema changes in V2+ migrations.

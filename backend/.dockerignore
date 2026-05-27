@@ -1,0 +1,34 @@
+# Maven build artifacts
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Root project files (not needed in build context)
+frontend/
+docs/
+.env
+.env.local
+README.md
+docker-compose.yml
+
+# Node (if frontend ever needed)
+node_modules/
