@@ -14,7 +14,7 @@
 │ email       VARCHAR(255) UQ │
 │ password    VARCHAR(255)    │
 │ full_name   VARCHAR(255)    │
-│ role        ENUM            │  ← ADMIN | STAFF
+│ role        ENUM            │  ← ADMIN | USER
 │ active      BOOLEAN         │
 │ created_at  TIMESTAMP       │
 │ updated_at  TIMESTAMP       │
@@ -60,7 +60,7 @@
 | email | VARCHAR(255) | NOT NULL, UNIQUE | Dùng để login |
 | password | VARCHAR(255) | NOT NULL | BCrypt hashed |
 | full_name | VARCHAR(255) | NOT NULL | |
-| role | VARCHAR(20) | NOT NULL | `ADMIN` hoặc `STAFF` |
+| role | VARCHAR(20) | NOT NULL | `ADMIN` hoặc `USER` |
 | active | BOOLEAN | DEFAULT true | Soft disable user |
 | created_at | TIMESTAMP | DEFAULT now() | |
 | updated_at | TIMESTAMP | DEFAULT now() | |
@@ -138,7 +138,7 @@ categories  1 ──── N  products
 ```java
 // Role
 public enum Role {
-    ADMIN, STAFF
+    ADMIN, USER
 }
 
 // OrderStatus

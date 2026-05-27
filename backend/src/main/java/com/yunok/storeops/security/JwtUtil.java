@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class JwtUtil {
         Map<String, Object> header = new HashMap<>();
         header.put("alg", "HS256");
         header.put("typ", "JWT");
-        header.put("kid", "storeops-2025");
+        header.put("kid", "storeops-2026");
 
         return Jwts.builder()
                 .header().add(header).and()
@@ -121,6 +122,15 @@ public class JwtUtil {
     }
 
     private SecretKey getSignInKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        try {
+            byte[] decoded = Decoders.BASE64.decode(secret);
+            // Base64 decode thành công và đủ dài (>= 32 bytes cho HS256)
+            if (decoded.length >= 32) {
+                return Keys.hmacShaKeyFor(decoded);
+            }
+        } catch (Exception ignored) {
+            // Không phải Base64 hợp lệ → fallback sang plain string
+        }
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 }

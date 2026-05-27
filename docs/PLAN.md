@@ -31,7 +31,7 @@
 - Cập nhật trạng thái đơn hàng
 - Dashboard thống kê tổng quan
 
-### 👤 Staff — Store Employee
+### 👤 User — Store Employee
 - Xem danh sách sản phẩm
 - Tìm kiếm & lọc theo category
 - Thêm sản phẩm vào giỏ hàng
@@ -63,7 +63,7 @@
 |---|---|---|
 | GET | `/api/orders` | ADMIN (tất cả đơn) |
 | GET | `/api/orders/{id}` | ADMIN |
-| GET | `/api/orders/my` | STAFF (đơn của mình) |
+| GET | `/api/orders/my` | USER (đơn của mình) |
 | POST | `/api/orders` | ADMIN, STAFF |
 | PUT | `/api/orders/{id}/status` | ADMIN |
 

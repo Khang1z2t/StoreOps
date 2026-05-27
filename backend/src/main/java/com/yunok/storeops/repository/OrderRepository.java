@@ -15,10 +15,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     // Admin: xem tất cả đơn, filter theo status
     Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 
-    // Staff: xem đơn của mình
+    // User: xem đơn của mình
     Page<Order> findByUserId(UUID userId, Pageable pageable);
 
-    // Staff: xem đơn của mình + filter theo status
+    // User: xem đơn của mình + filter theo status
     Page<Order> findByUserIdAndStatus(UUID userId, OrderStatus status, Pageable pageable);
 
     // Dashboard: đếm đơn theo status

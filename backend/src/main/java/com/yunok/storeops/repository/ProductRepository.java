@@ -20,12 +20,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> findByActiveTrue(Pageable pageable);
 
     // Search theo tên (case-insensitive) + filter category (optional)
-    @Query("""
-            SELECT p FROM Product p
+    @Query(value = """
+            SELECT * FROM storeops.products p
             WHERE p.active = true
-            AND (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
-            AND (:categoryId IS NULL OR p.category.id = :categoryId)
-            """)
+            AND (:name IS NULL OR LOWER(p.name::text) LIKE LOWER(CONCAT('%', :name, '%')))
+            AND (:categoryId IS NULL OR p.category_id = CAST(:categoryId AS uuid))
+            """, nativeQuery = true)
     Page<Product> search(
             @Param("name") String name,
             @Param("categoryId") UUID categoryId,

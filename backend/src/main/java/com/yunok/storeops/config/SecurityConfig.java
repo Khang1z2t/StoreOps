@@ -1,9 +1,8 @@
 package com.yunok.storeops.config;
 
+import com.yunok.storeops.constants.ApiPaths;
 import com.yunok.storeops.security.JwtFilter;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,13 +28,13 @@ import java.util.List;
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
-    private final String[] PUBLIC_ENDPOINTS = {
+    private static final String[] PUBLIC_ENDPOINTS = {
             "/",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/api-docs/**",
             "/v3/api-docs/**",
-            "/api/auth/**",
+            ApiPaths.API_AUTH + "/**",
     };
 
     @Bean
@@ -47,6 +46,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
 
                         // Admin only
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
@@ -55,9 +56,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasRole("ADMIN")
 
-                        // Staff + Admin
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("ADMIN", "STAFF")
-                        .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("ADMIN", "STAFF")
+                        // User + Admin
+                        .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("ADMIN", "USER")
 
                         .anyRequest().authenticated()
                 )
