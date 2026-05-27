@@ -12,6 +12,9 @@ spring:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
 
   jpa:
     hibernate:
@@ -30,8 +33,13 @@ spring:
 
 server:
   port: ${PORT:8080}
+  compression:
+    enabled: true
 
 jwt:
   secret: ${JWT_SECRET:mysecretkey}
   expiration: 3600000 # 1 hour in milliseconds
   refresh-expiration: 604800000 # 7 day in milliseconds
+
+swagger:
+  enabled: ${SWAGGER_ENABLED:true}
