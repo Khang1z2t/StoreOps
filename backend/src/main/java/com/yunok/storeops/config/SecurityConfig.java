@@ -1,6 +1,7 @@
 package com.yunok.storeops.config;
 
 import com.yunok.storeops.constants.ApiPaths;
+import com.yunok.storeops.exception.SecurityExceptionHandler;
 import com.yunok.storeops.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ import java.util.List;
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final SecurityExceptionHandler securityExceptionHandler;
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
             "/swagger-ui.html",
@@ -44,20 +46,28 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(securityExceptionHandler)
+                        .accessDeniedHandler(securityExceptionHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
 
+                        // User + Admin (đặt trước /api/orders/{id} để tránh match nhầm)
+                        .requestMatchers(HttpMethod.GET, "/api/orders/my").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/orders/**").hasAnyRole("ADMIN", "USER")
+
                         // Admin only
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/orders").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/{id}").hasRole("ADMIN")
 
-                        // User + Admin
-                        .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("ADMIN", "USER")
 
                         .anyRequest().authenticated()
                 )

@@ -23,6 +23,7 @@ import org.springframework.web.util.HtmlUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -34,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     // ── Helpers ──────────────────────────────────
 
     private User currentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
     }
 
     private Order findOrderOrThrow(UUID id) {
