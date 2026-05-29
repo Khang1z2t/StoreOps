@@ -9,6 +9,7 @@ export type Product = {
   description: string;
   price: number;
   quantity: number;
+  unit: string;
   active: boolean;
   imageUrl?: string;
   category: Category;
@@ -19,6 +20,7 @@ export type ProductPayload = {
   description: string;
   price: number;
   quantity: number;
+  unit: string;
   active: boolean;
   imageUrl?: string;
   categoryId: string;
@@ -30,6 +32,7 @@ export type ProductFormValues = {
   imageUrl: string;
   price: string;
   quantity: string;
+  unit: string;
   categoryId: string;
   active: boolean;
 };

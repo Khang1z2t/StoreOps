@@ -6,7 +6,7 @@ import type { Category, Product, ProductFormValues } from "@/types";
 const PLACEHOLDER_BASE_URL = "https://placehold.co/400x400?text=";
 
 type ProductFormErrors = Partial<
-  Record<"name" | "description" | "price" | "quantity" | "categoryId", string>
+  Record<"name" | "description" | "price" | "quantity" | "categoryId" | "unit", string>
 >;
 
 type ProductFormDialogProps = {
@@ -26,8 +26,11 @@ const EMPTY_VALUES: ProductFormValues = {
   price: "",
   quantity: "",
   categoryId: "",
+  unit: "",
   active: true,
 };
+
+const UNITS = ["hộp", "gói", "chai", "lon", "cái", "hũ", "túi", "kg", "g"];
 
 function getInitialValues(
   mode: "create" | "edit",
@@ -42,6 +45,7 @@ function getInitialValues(
       quantity: String(product.quantity),
       categoryId: product.category?.id ?? "",
       active: product.active,
+      unit: product.unit ?? "",
     };
   }
 
@@ -204,7 +208,9 @@ export default function ProductFormDialog({
                 }}
                 className={getFieldClass(Boolean(errors.categoryId))}
               >
-                <option value="">Chọn danh mục</option>
+                <option value="" disabled>
+                  --- Chọn danh mục ---
+                </option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -214,8 +220,25 @@ export default function ProductFormDialog({
               {getErrorText(errors.categoryId)}
             </div>
 
-            <div className="flex items-center rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-400">
-              Trạng thái được quản lý riêng
+            <div>
+              <select
+                value={form.unit}
+                onChange={(e) => {
+                  setForm((prev) => ({ ...prev, unit: e.target.value }));
+                  clearFieldError("unit");
+                }}
+                className={getFieldClass(Boolean(errors.unit))}
+              >
+                <option value="" disabled>
+                  --- Chọn đơn vị ---
+                </option>
+                {UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+              {getErrorText(errors.unit)}
             </div>
           </div>
 

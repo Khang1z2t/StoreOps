@@ -135,6 +135,7 @@ export default function AdminProductsPage() {
     imageUrl: values.imageUrl,
     price: Number(values.price),
     quantity: Number(values.quantity),
+    unit: values.unit,
     categoryId: values.categoryId,
     active,
   });
@@ -176,6 +177,7 @@ export default function AdminProductsPage() {
         imageUrl: deleteTarget.imageUrl,
         price: deleteTarget.price,
         quantity: deleteTarget.quantity,
+        unit: deleteTarget.unit,
         categoryId: deleteTarget.category.id,
         active: false,
       };

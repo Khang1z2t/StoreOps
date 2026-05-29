@@ -24,7 +24,10 @@ export default function ProductCard({ product, canAddToCart, onAddToCart }: Prod
       <div className="p-4">
         <p className="text-[11px] uppercase tracking-wide text-zinc-500">{product.category.name}</p>
         <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-zinc-100">{product.name}</h3>
-        <p className="mt-2 text-base font-bold text-amber-400">{formatPrice(product.price)}</p>
+        <p className="mt-2 text-base font-bold text-amber-400">
+          {formatPrice(product.price)}
+          <span className="ml-1 text-xs font-normal text-zinc-500">/ {product.unit}</span>
+        </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xs text-zinc-400">Số lượng: {product.quantity}</span>
           <button
