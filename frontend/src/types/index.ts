@@ -14,6 +14,26 @@ export type Product = {
   category: Category;
 };
 
+export type ProductPayload = {
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  active: boolean;
+  imageUrl?: string;
+  categoryId: string;
+};
+
+export type ProductFormValues = {
+  name: string;
+  description: string;
+  imageUrl: string;
+  price: string;
+  quantity: string;
+  categoryId: string;
+  active: boolean;
+};
+
 export type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -55,3 +75,32 @@ export type RegisterRequest = {
 };
 
 export type RegisterResponse = null;
+
+export type OrderItemRequest = {
+  productId: string;
+  quantity: number;
+};
+
+export type CreateOrderRequest = {
+  items: OrderItemRequest[];
+  note?: string;
+};
+
+export type OrderItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+  subtotal: number;
+};
+
+export type Order = {
+  id: string;
+  userId: string;
+  userFullName: string;
+  status: "PENDING" | "APPROVED" | "DELIVERED" | "CANCELLED";
+  totalPrice: number;
+  note: string;
+  createdAt: string;
+  items: OrderItem[];
+};

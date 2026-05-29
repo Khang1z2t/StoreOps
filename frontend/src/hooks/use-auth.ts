@@ -4,6 +4,7 @@ export function useAuth() {
   const user = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
   const refreshToken = useAuthStore((state) => state.refreshToken);
+  const hydrated = useAuthStore((state) => state.hydrated);
   const setUser = useAuthStore((state) => state.setUser);
   const setTokens = useAuthStore((state) => state.setTokens);
   const clearAuth = useAuthStore((state) => state.clearAuth);
@@ -12,6 +13,7 @@ export function useAuth() {
     user,
     accessToken,
     refreshToken,
+    hydrated,
     isAuthenticated: Boolean(accessToken),
     setUser,
     setTokens,
