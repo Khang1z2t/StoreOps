@@ -369,7 +369,7 @@ export default function AdminProductsPage() {
         categories={categories}
         submitting={submitting}
         onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
+        onSubmit={handleFormSubmit} 
       />
 
       <ConfirmAlertDialog

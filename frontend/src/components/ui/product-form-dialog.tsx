@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import type { Category, Product, ProductFormValues } from "@/types";
 
 const PLACEHOLDER_BASE_URL = "https://placehold.co/400x400?text=";
@@ -65,7 +65,19 @@ export default function ProductFormDialog({
   const [form, setForm] = useState<ProductFormValues>(initialValues);
   const [errors, setErrors] = useState<ProductFormErrors>({});
 
+   useEffect(() => {
+    if (open) {
+      setForm(getInitialValues(mode, product))
+      setErrors({})
+    }
+  }, [open, mode, product])
+
   if (!open) return null;
+
+  const resetForm = () => {
+    setForm(EMPTY_VALUES)
+    setErrors({})
+  }
 
   const clearFieldError = (field: keyof ProductFormErrors) => {
     if (!errors[field]) return;
@@ -115,6 +127,8 @@ export default function ProductFormDialog({
       description: trimmedDescription,
       imageUrl,
     });
+
+    resetForm();
   };
 
   return (
