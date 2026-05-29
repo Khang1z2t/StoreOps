@@ -269,7 +269,313 @@ PORT=8080
 
 ## 🎨 Frontend Setup
 
-> Coming soon - Frontend documentation
+### Prerequisites
+
+- Node.js 20+
+- npm 10+
+
+### Local Development
+
+#### 1. Install dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+#### 2. Configure environment
+
+Create `.env.local` in `frontend/`:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
+
+> If backend is deployed, replace with your deployed API base URL.
+
+#### 3. Run development server
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend runs at: `http://localhost:3000`
+
+#### 4. Build & lint
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+### Frontend Features (Current)
+
+✅ **Public area**
+- Login/Register
+- Product listing + search
+- Cart drawer and order creation
+- My orders page
+
+✅ **Admin area (`/dashboard`)**
+- Shared admin layout with protected routing
+- Dashboard overview (stats + recent orders)
+- Product management page:
+  - create/edit product dialog with validation
+  - soft delete behavior (`active=false`)
+  - pagination, search, sort, category filter
+  - Sonner notifications for success/error
+- Orders management page:
+  - status tabs (All / Pending / Approved / Delivered)
+  - pending badge count
+  - search + date-range filters (All / Today / 7 days / 30 days)
+  - action buttons by status:
+    - Pending → Approve
+    - Approved → Deliver
+
+✅ **Auth/session behavior**
+- Zustand persisted auth store
+- Axios interceptor with refresh-token flow on 401
+- automatic retry after token refresh
+
+### Swagger shortcut (Admin Sidebar)
+
+Admin sidebar has **API Docs** button that opens Swagger URL from env:
+
+`{NEXT_PUBLIC_API_URL without /api}/swagger-ui/index.html`
+
+Example:
+- `NEXT_PUBLIC_API_URL=http://localhost:8080/api`
+- opens `http://localhost:8080/swagger-ui/index.html`
+
+### Important Routes
+
+- `/` — public home
+- `/auth/login`
+- `/auth/register`
+- `/orders` — my orders (user)
+- `/dashboard` — admin overview
+- `/dashboard/products` — admin products
+- `/dashboard/orders` — admin orders
+
+### Notes
+
+- Theme follows dark zinc system; public accent is amber, admin accent is emerald.
+- For admin actions, backend role must be `ADMIN`.
+- Ensure backend CORS allows frontend origin during local and production runs.
+
+---
+
+### Frontend Project Structure
+
+```text
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── (public)/
+│   │   │   ├── auth/
+│   │   │   ├── orders/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── (admin)/
+│   │   │   ├── dashboard/
+│   │   │   │   ├── products/
+│   │   │   │   ├── orders/
+│   │   │   │   └── page.tsx
+│   │   │   └── layout.tsx
+│   │   └── layout.tsx
+│   ├── components/
+│   │   ├── ui/
+│   │   └── products/
+│   ├── hooks/
+│   ├── lib/
+│   ├── store/
+│   ├── types/
+│   └── utils/
+├── public/
+├── package.json
+└── tsconfig.json
+```
+
+- `app/(public)`: user-facing pages (auth, product browsing, user orders)
+- `app/(admin)`: admin pages (dashboard, products, orders)
+- `components/ui`: shared UI components and dialogs
+- `lib`: API client and integration helpers
+- `store`: Zustand state stores (auth/cart)
+- `types`: shared TypeScript domain types
+- `utils`: formatting and helper utilities
+
+---
+
+### Next FE Milestones
+
+- Add order detail modal and richer state transitions UX
+- Add integration tests for critical admin flows
+- Expand settings/admin tools section
+
+---
+
+**Frontend Status:** ✅ Active development with core admin flows implemented
+
+---
+
+## 🌐 Deployment
+
+### Backend Deployment
+
+#### Option 1: Koyeb (Free-tier optimized)
+
+1. Connect GitHub repo to Koyeb
+2. Configure environment variables in Koyeb dashboard
+3. Deploy from `master` branch
+4. GitHub Actions auto-builds and pushes Docker image to Docker Hub
+
+#### Option 2: Render
+
+1. Create new Web Service on Render
+2. Connect GitHub repo
+3. Set build command: `./mvnw clean package`
+4. Set start command: `java -jar target/*.jar`
+5. Add environment variables
+
+#### Option 3: Railway
+
+1. Connect GitHub repo
+2. Railway auto-detects Spring Boot app
+3. Add PostgreSQL plugin
+4. Deploy
+
+### GitHub Actions CI/CD
+
+**Workflow:** `.github/workflows/backend-deploy.yml`
+
+Triggers on:
+
+- `push` to `master` branch
+- Changes in `backend/` folder
+
+Actions:
+
+1. Checkout code
+2. Build Docker image (multi-stage: Maven build → distroless runtime)
+3. Push to Docker Hub (`khang1z2t/storeops-backend:latest`)
+4. Manual redeploy on Koyeb/Render
+
+### Docker Hub Setup
+
+1. Create Docker Hub account
+2. Generate Personal Access Token (read + write)
+3. Add to GitHub repo secrets:
+   - `DOCKER_USERNAME`
+   - `DOCKER_TOKEN`
+
+---
+
+## 📚 API Documentation
+
+Full API documentation available in `/docs/API.md`
+
+**Quick Reference:**
+
+| Endpoint                  | Method | Role   | Description          |
+| ------------------------- | ------ | ------ | -------------------- |
+| `/api/auth/login`         | POST   | PUBLIC | Login                |
+| `/api/auth/register`      | POST   | PUBLIC | Register             |
+| `/api/auth/refresh`       | POST   | PUBLIC | Refresh token        |
+| `/api/auth/me`            | GET    | USER   | Get current user     |
+| `/api/products`           | GET    | PUBLIC | List products        |
+| `/api/products`           | POST   | ADMIN  | Create product       |
+| `/api/orders`             | POST   | USER   | Create order         |
+| `/api/orders/my`          | GET    | USER   | Get my orders        |
+| `/api/orders`             | GET    | ADMIN  | Get all orders       |
+| `/api/orders/{id}/status` | PUT    | ADMIN  | Update order status  |
+| `/api/dashboard/stats`    | GET    | ADMIN  | Dashboard statistics |
+
+**Live Swagger UI:** `https://beautiful-vittoria-yunok-e4f8b150.koyeb.app/`
+
+---
+
+## 🔑 Environment Variables Reference
+
+### Database
+
+```
+DB_URL=jdbc:postgresql://host:5432/storeops
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_SCHEMA=storeops
+```
+
+### Security
+
+```
+JWT_SECRET=your-secret-key-min-32-chars
+```
+
+### Server
+
+```
+PORT=8080
+SWAGGER_ENABLED=true
+```
+
+---
+
+## 🧪 Testing
+
+### Local Test with cURL
+
+```bash
+# Login
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"admin","password":"password"}'
+
+# Get products
+curl http://localhost:8080/api/products
+
+# Create order
+curl -X POST http://localhost:8080/api/orders \
+  -H "Authorization: Bearer {accessToken}" \
+  -H "Content-Type: application/json" \
+  -d '{...}'
+```
+
+### Using Swagger UI
+
+1. Navigate to `http://localhost:8080/swagger-ui.html`
+2. Click "Authorize" and paste JWT token
+3. Test endpoints directly from UI
+
+---
+
+## 📖 Documentation
+
+- **API Docs:** `/docs/API.md` — Complete endpoint reference
+- **Entity Docs:** `/docs/ENTITY.md` — Database schema details
+- **Project Plan:** `/docs/PLAN.md` — Milestones and requirements
+
+---
+
+## 📞 Contact & Support
+
+- **Project:** StoreOps (Interview Project)
+- **Author:** Khang Bảo
+- **Portfolio:** https://portfolio.khangyuno.id.vn
+- **Email:** khangbao3008@gmail.com
+
+---
+
+## 📄 License
+
+This project is created for educational and interview purposes.
+
+---
+
+**Last Updated:** 2026-05-28  
+**Backend Status:** ✅ Complete & Deployed  
+**Frontend Status:** 🚧 In Development
 
 ---
 
