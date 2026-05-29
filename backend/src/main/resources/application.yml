@@ -36,6 +36,15 @@ server:
   compression:
     enabled: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 jwt:
   secret: ${JWT_SECRET:mysecretkey}
   expiration: 3600000 # 1 hour in milliseconds
