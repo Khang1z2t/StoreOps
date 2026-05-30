@@ -22,7 +22,7 @@ export default function LoginPage() {
     try {
       const tokens = await login({ identifier, password });
       setTokens(tokens.accessToken, tokens.refreshToken);
-      const me = await getMe(tokens.accessToken);
+      const me = await getMe();
       setUser(me);
       router.push("/");
     } catch {

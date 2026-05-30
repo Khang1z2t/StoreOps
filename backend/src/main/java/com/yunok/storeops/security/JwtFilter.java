@@ -1,5 +1,8 @@
 package com.yunok.storeops.security;
 
+import com.yunok.storeops.exception.SecurityExceptionHandler;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +23,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final SecurityExceptionHandler securityExceptionHandler;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -39,8 +43,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
         try {
             userId = jwtUtil.extractUserId(token);
-        } catch (Exception e) {
-            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            securityExceptionHandler.writeUnauthorized(response, "Token expired");
+            return;
+        } catch (JwtException | IllegalArgumentException e) {
+            securityExceptionHandler.writeUnauthorized(response, "Invalid token");
             return;
         }
 

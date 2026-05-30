@@ -22,6 +22,10 @@ public class SecurityExceptionHandler implements AuthenticationEntryPoint, Acces
         response.getWriter().write("{\"success\":false,\"message\":\"" + message + "\",\"data\":null,\"timestamp\":\"" + Instant.now() + "\"}");
     }
 
+    public void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
+        writeErrorResponse(response, HttpStatus.UNAUTHORIZED.value(), message);
+    }
+
     @Override
     public void commence(@NonNull HttpServletRequest request,
                          @NonNull HttpServletResponse response,

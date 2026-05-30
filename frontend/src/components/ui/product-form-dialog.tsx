@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import type { Category, Product, ProductFormValues } from "@/types";
 
 const PLACEHOLDER_BASE_URL = "https://placehold.co/400x400?text=";
@@ -61,16 +61,10 @@ export default function ProductFormDialog({
   onClose,
   onSubmit,
 }: ProductFormDialogProps) {
-  const initialValues = getInitialValues(mode, product);
-  const [form, setForm] = useState<ProductFormValues>(initialValues);
+  const [form, setForm] = useState<ProductFormValues>(() =>
+    getInitialValues(mode, product),
+  );
   const [errors, setErrors] = useState<ProductFormErrors>({});
-
-   useEffect(() => {
-    if (open) {
-      setForm(getInitialValues(mode, product))
-      setErrors({})
-    }
-  }, [open, mode, product])
 
   if (!open) return null;
 

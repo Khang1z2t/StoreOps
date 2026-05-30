@@ -1,8 +1,17 @@
 import Link from "next/link";
-import { ChevronDown, LayoutDashboard, LogOut, ReceiptText, Search, ShoppingCart, User } from "lucide-react";
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  ReceiptText,
+  Search,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "@/lib/api";
+import { getApiMode, getProducts, toggleApiMode } from "@/lib/api";
 import { formatPrice } from "@/utils/format";
 import type { AuthUser, Product } from "@/types";
 
@@ -16,10 +25,23 @@ type HeaderProps = {
   onAddFromSearch?: (product: Product) => void;
 };
 
-export default function Header({ search, onSearchChange, user, onOpenCart, cartCount = 0, onLogout, onAddFromSearch }: HeaderProps) {
+export default function Header({
+  search,
+  onSearchChange,
+  user,
+  onOpenCart,
+  cartCount = 0,
+  onLogout,
+  onAddFromSearch,
+}: HeaderProps) {
   const [focus, setFocus] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [openUserMenu, setOpenUserMenu] = useState(false);
+  const [switchTapCount, setSwitchTapCount] = useState(0);
+  const [apiMode, setApiMode] = useState<"prod" | "local">(() => getApiMode());
+  const switchTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -39,6 +61,40 @@ export default function Header({ search, onSearchChange, user, onOpenCart, cartC
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (switchTapTimeoutRef.current) {
+        clearTimeout(switchTapTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleHiddenApiSwitch = () => {
+    if (switchTapTimeoutRef.current) {
+      clearTimeout(switchTapTimeoutRef.current);
+    }
+
+    const nextCount = switchTapCount + 1;
+
+    if (nextCount >= 5) {
+      const nextMode = toggleApiMode();
+      setApiMode(nextMode);
+      setSwitchTapCount(0);
+      toast.info("Đã chuyển môi trường API", {
+        description:
+          nextMode === "local"
+            ? "LOCAL: http://localhost:8080"
+            : "HOSTING: https://*.koyeb.app",
+      });
+      return;
+    }
+
+    setSwitchTapCount(nextCount);
+    switchTapTimeoutRef.current = setTimeout(() => {
+      setSwitchTapCount(0);
+    }, 2500);
+  };
+
   const { data: results = [], isFetching } = useQuery<Product[]>({
     queryKey: ["products-search", debouncedSearch],
     queryFn: () => getProducts({ name: debouncedSearch }),
@@ -50,8 +106,22 @@ export default function Header({ search, onSearchChange, user, onOpenCart, cartC
   return (
     <header className="sticky top-0 z-20 rounded-xl border border-zinc-800 bg-zinc-900 p-4 shadow-lg">
       <div className="grid grid-cols-1 items-center gap-3 md:grid-cols-[190px_1fr_auto]">
-        <Link href="/" className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-zinc-100 transition-colors hover:text-amber-400">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-500" />
+        <Link
+          href="/"
+          className={`inline-flex items-center gap-2 text-xl font-bold tracking-tight transition-colors ${
+            apiMode === "local"
+              ? "hover:text-emerald-400"
+              : "hover:text-amber-400"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={handleHiddenApiSwitch}
+            className={`inline-block h-2.5 w-2.5 rounded-full ${
+              apiMode === "local" ? "bg-emerald-500" : "bg-amber-500"
+            }`}
+            aria-label="App marker"
+          />
           StoreOps
         </Link>
 
@@ -70,14 +140,23 @@ export default function Header({ search, onSearchChange, user, onOpenCart, cartC
               {isFetching ? (
                 <p className="px-2 py-1.5 text-xs text-zinc-500">Đang tìm...</p>
               ) : results.length === 0 ? (
-                <p className="px-2 py-1.5 text-xs text-zinc-500">Không tìm thấy sản phẩm</p>
+                <p className="px-2 py-1.5 text-xs text-zinc-500">
+                  Không tìm thấy sản phẩm
+                </p>
               ) : (
                 <div className="space-y-1">
                   {results.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:bg-zinc-800">
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:bg-zinc-800"
+                    >
                       <div className="min-w-0">
-                        <p className="truncate text-sm text-zinc-200">{item.name}</p>
-                        <p className="text-xs text-amber-400">{formatPrice(item.price)}</p>
+                        <p className="truncate text-sm text-zinc-200">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-amber-400">
+                          {formatPrice(item.price)}
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -120,7 +199,9 @@ export default function Header({ search, onSearchChange, user, onOpenCart, cartC
               <ShoppingCart className="h-4 w-4" />
               Giỏ hàng
               {cartCount > 0 && (
-                <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">{cartCount}</span>
+                <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {cartCount}
+                </span>
               )}
             </button>
 
@@ -132,7 +213,9 @@ export default function Header({ search, onSearchChange, user, onOpenCart, cartC
               >
                 <User className="h-4 w-4 text-zinc-400" />
                 {user.fullName || user.username}
-                <ChevronDown className={`h-4 w-4 text-zinc-500 transition-transform ${openUserMenu ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-4 w-4 text-zinc-500 transition-transform ${openUserMenu ? "rotate-180" : ""}`}
+                />
               </button>
               {openUserMenu && (
                 <div className="absolute right-0 mt-2 w-48 rounded-lg border border-zinc-700 bg-zinc-900 p-2 shadow-lg">

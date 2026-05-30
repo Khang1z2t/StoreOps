@@ -31,7 +31,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       return;
     }
 
-    getMe(accessToken)
+    getMe()
       .then((me) => setUser(me))
       .catch(() => clearAuth());
   }, [accessToken, setUser, clearAuth]);

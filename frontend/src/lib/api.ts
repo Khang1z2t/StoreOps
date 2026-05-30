@@ -15,12 +15,49 @@ import type {
   Order,
 } from "@/types";
 
+const API_MODE_KEY = "storeops-api-mode";
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-const baseURL = rawBaseUrl.endsWith("/api") ? rawBaseUrl : `${rawBaseUrl}/api`;
+const localRawBaseUrl = "http://localhost:8080";
+
+function withApiSuffix(url: string) {
+  return url.endsWith("/api") ? url : `${url}/api`;
+}
+
+function getStoredApiMode(): "prod" | "local" {
+  if (typeof window === "undefined") return "prod";
+  return window.localStorage.getItem(API_MODE_KEY) === "local" ? "local" : "prod";
+}
+
+function resolveBaseURL() {
+  const mode = getStoredApiMode();
+  return withApiSuffix(mode === "local" ? localRawBaseUrl : rawBaseUrl);
+}
 
 const api = axios.create({
-  baseURL,
+  baseURL: resolveBaseURL(),
 });
+
+const refreshApi = axios.create({
+  baseURL: resolveBaseURL(),
+});
+
+function syncApiClientsBaseURL() {
+  const baseURL = resolveBaseURL();
+  api.defaults.baseURL = baseURL;
+  refreshApi.defaults.baseURL = baseURL;
+}
+
+export function getApiMode() {
+  return getStoredApiMode();
+}
+
+export function toggleApiMode() {
+  if (typeof window === "undefined") return "prod" as const;
+  const nextMode = getStoredApiMode() === "local" ? "prod" : "local";
+  window.localStorage.setItem(API_MODE_KEY, nextMode);
+  syncApiClientsBaseURL();
+  return nextMode;
+}
 
 type RetryableConfig = {
   _retry?: boolean;
@@ -37,9 +74,9 @@ async function refreshAccessToken() {
     if (!refreshToken) throw new Error("Missing refresh token");
 
     try {
-      const response = await axios.post<ApiResponse<LoginResponse>>(
-        `${baseURL}/auth/refresh`,
-        null,
+      const response = await refreshApi.post<ApiResponse<LoginResponse>>(
+        "/auth/refresh",
+        undefined,
         {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
@@ -78,7 +115,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config as RetryableConfig;
 
-    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry) {
+    const status = error.response?.status;
+
+    if (
+      (status !== 401 && status !== 403) ||
+      !originalRequest ||
+      originalRequest._retry ||
+      (typeof error.config?.url === "string" && error.config.url.includes("/auth/refresh"))
+    ) {
       return Promise.reject(error);
     }
 
@@ -130,12 +174,8 @@ export async function login(payload: LoginRequest) {
   return response.data.data;
 }
 
-export async function getMe(accessToken: string) {
-  const response = await api.get<ApiResponse<AuthUser>>("/auth/me", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export async function getMe() {
+  const response = await api.get<ApiResponse<AuthUser>>("/auth/me");
   return response.data.data;
 }
 

@@ -41,11 +41,21 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
 
     if (!user) {
-      getMe(accessToken)
+      getMe()
         .then((me) => setUser(me))
-        .catch(() => {
-          clearAuth();
-          router.replace("/auth/login");
+        .catch((error: unknown) => {
+          const status =
+            typeof error === "object" &&
+            error !== null &&
+            "response" in error &&
+            typeof (error as { response?: { status?: number } }).response?.status === "number"
+              ? (error as { response: { status: number } }).response.status
+              : undefined;
+
+          if (status === 401 || status === 403) {
+            clearAuth();
+            router.replace("/auth/login");
+          }
         });
       return;
     }
